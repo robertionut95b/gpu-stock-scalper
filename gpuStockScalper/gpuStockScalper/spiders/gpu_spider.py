@@ -5,21 +5,17 @@ from ..items import GpustockscalperItem
 class GPUSpider(scrapy.Spider):
     name = "gpu_spider"
     allowed_domains = ["pcgarage.ro", "emag.ro", "evomag.ro"]
-    exclude_models = ["ventus", "eagle", "gainward", "palit"]
 
     start_urls = [
         "https://www.pcgarage.ro/cauta/rtx+3080",
         "https://www.emag.ro/search/rtx%203080?ref=effective_search",
-        "https://www.evomag.ro/componente-pc-gaming-placi-video/asus-placa-video-asus-geforce-rtx-3080-tuf-gaming-10gb-gddr6x-320-bit-3798493.html",
-        "https://www.evomag.ro/componente-pc-gaming-placi-video/msi-placa-video-msi-geforce-rtx-3080-gaming-x-trio-10gb-gddr6x-320-bit-3798543.html",
-        "https://www.evomag.ro/componente-pc-gaming-placi-video/asus-placa-video-asus-geforce-rtx-3080-rog-strix-10gb-gddr6x-320-bit-3798527.html",
+        "https://www.evomag.ro/componente-pc-gaming-placi-video/asus-placa-video-asus-geforce-rtx-3080-tuf-gaming"
+        "-10gb-gddr6x-320-bit-3798493.html",
+        "https://www.evomag.ro/componente-pc-gaming-placi-video/msi-placa-video-msi-geforce-rtx-3080-gaming-x-trio"
+        "-10gb-gddr6x-320-bit-3798543.html",
+        "https://www.evomag.ro/componente-pc-gaming-placi-video/asus-placa-video-asus-geforce-rtx-3080-rog-strix-10gb"
+        "-gddr6x-320-bit-3798527.html",
     ]
-
-    def parse_emg(self, response, **kwargs):
-        pass
-
-    def parse_evg(self, response, **kwargs):
-        pass
 
     def parse(self, response, **kwargs):
         if "pcgarage" in response.url:
@@ -29,8 +25,6 @@ class GPUSpider(scrapy.Spider):
                 product_box_availability = product.css(".product_box_availability").extract()
                 product_title = product.css(".product_box_name a::attr(title)")[0].extract()
                 if "placa video" not in str.lower(product_title):
-                    continue
-                if str.lower(product_title) in self.exclude_models:
                     continue
                 item["name"] = product_title
                 if "instock" in str(product_box_availability).lower():
@@ -47,8 +41,6 @@ class GPUSpider(scrapy.Spider):
                 product_box_stock = response.css("#card_grid .card-item")[0]\
                     .css(".card-section-btm").css(".product-stock-status::text")[0].extract()
                 if "placa video" not in str.lower(product_title):
-                    continue
-                if str.lower(product_title) in self.exclude_models:
                     continue
                 item["name"] = product_title
                 if "în stoc" in str(product_box_stock).lower():

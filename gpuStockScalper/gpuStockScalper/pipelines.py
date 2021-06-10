@@ -8,15 +8,22 @@
 from itemadapter import ItemAdapter
 
 from win10toast import ToastNotifier
-import webbrowser
+from scrapy.exceptions import DropItem
 
 
 class GpustockscalperPipeline:
-    def process_item(self, item, spider):
-        self.notify_in_stock(item)
-        return item
 
-    def notify_in_stock(self, item):
+    exclude_models = ["ventus", "eagle", "gainward", "palit"]
+
+    def process_item(self, item, spider):
+        if any(model in str.lower(item.get('name', '')) for model in self.exclude_models):
+            raise DropItem("Excluded model {}", item.get('name', ''))
+        else:
+            self.notify_in_stock(item)
+            return item
+
+    @staticmethod
+    def notify_in_stock(item):
         if "IN_STOCK" in item.get('stock', ''):
             toaster = ToastNotifier()
             toaster.show_toast("GPU IN STOCK", "{}".format(item.get('url')),
